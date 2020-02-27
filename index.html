@@ -54,17 +54,21 @@
 
                     google.maps.event.addListener(marker, 'click', (function (marker, count) {
                         return function () {
+                            const position = new google.maps.LatLng(33.142821, -117.998632);
+                            marker.setPosition(position);
                             infowindow.setContent(locations[count][0]);
                             infowindow.open(map, marker);
                         }
                     })(marker, count));
 
-                    google.maps.event.addListener(marker, 'dblclick', (function (marker, count) {
-                        return function () {
-                            console.log({marker, count})
-                            marker.setMap(null);
-                        }
-                    })(marker, count));
+                    // google.maps.event.addListener(marker, 'dblclick', (function (marker, count) {
+                    //     return function () {
+                    //         console.log({marker, count})
+                    //         // marker.setMap(null);
+                    //         const position = new google.maps.LatLng(33.655333, -117.998641);
+                    //         marker.setPosition(position);
+                    //     }
+                    // })(marker, count));
                 }
             }
         </script>

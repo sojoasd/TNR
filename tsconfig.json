@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": { "*": ["types/*"] },
+      "target": "es6",
+      "module": "commonjs",
+      "lib": ["dom", "es6"],
+      "outDir": "dist",
+      "rootDir": "src",
+      "sourceMap": true,
+      "esModuleInterop": true
+      // "experimentalDecorators": true,
+      // "emitDecoratorMetadata": true
+      // "allowJs": true,
+      // "noImplicitAny": true,
+      // "strictNullChecks": true
+    },
+    "exclude": ["node_modules", ".vscode"],
+    "include": ["src/**/*.ts"]
+  }
+  
