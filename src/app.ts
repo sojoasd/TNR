@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/", RestfulAccount);
+app.use("/account", RestfulAccount);
 
 app.use((error, req, res, next) => {
   logger.error({ header: req.headers, body: req.body, message: error.message });
