@@ -6,9 +6,15 @@ export default class ActionController {
       const fn = "ActionController.callAsync";
 
       try {
-        logger.debug(fn, { body: req.body });
+        // console.log(fn, req.url);
 
-        const result = await afunc(req.body);
+        const header = req.headers;
+        const body = req.body;
+        const url = req.url;
+
+        logger.debug(fn, { url, header, body });
+
+        const result = await afunc(url, header, body);
 
         res.json(result);
       } catch (error) {

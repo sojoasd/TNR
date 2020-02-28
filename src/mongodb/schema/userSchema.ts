@@ -13,29 +13,38 @@ const UserSchema = new mongoose.Schema(
     },
     name: {
       type: String,
-      index: true,
-      unique: true
-    },
-    account: {
-      type: String,
-      required: true,
-      index: true,
-      unique: true
-    },
-    password: {
-      type: String,
-      required: true
+      index: true
     },
     role: {
       type: String,
+      required: true,
       index: true
     },
-    token: {
+    accessToken: {
       type: String,
       unique: true
     },
+    googleAccessToken: {
+      type: String,
+      unique: true
+    },
+    googleRefreshToken: {
+      type: String,
+      unique: true
+    },
+    googleTokenType: {
+      type: String,
+      index: true
+    },
+    googleIdToken: {
+      type: String,
+      unique: true
+    },
+    googleScope: {
+      type: String
+    },
     updatedAt: {
-      type: Date,
+      type: Number,
       required: true
     }
   },

@@ -12,8 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/account", RestfulAccount);
 
 app.use((error, req, res, next) => {
-  logger.error({ header: req.headers, body: req.body, message: error.message });
-  console.log(error);
+  logger.debug({ header: req.headers, body: req.body, message: error.message });
   res.status(error.status || 500);
   res.json({
     error: {

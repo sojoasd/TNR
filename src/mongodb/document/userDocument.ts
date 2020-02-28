@@ -2,19 +2,21 @@ import mongoose from "mongoose";
 
 export interface IUserFilter {
   id?: String;
-  account?: string;
-  password?: string;
   name?: string;
+  role?: string;
 }
 
 export interface IUser {
-  id?: String;
+  id?: string;
   name?: string;
-  account?: string;
-  password?: string;
   role?: string;
-  token?: string;
-  updatedAt?: Date;
+  accessToken?: string;
+  googleAccessToken?: string;
+  googleRefreshToken?: string;
+  googleTokenType?: string;
+  googleIdToken?: string;
+  googleScope?: string;
+  updatedAt?: number;
 }
 
 export interface IUserModel extends mongoose.Model<IUserDocument> {
@@ -22,11 +24,14 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
 }
 
 export default interface IUserDocument extends mongoose.Document {
-  id: String;
+  id: string;
   name: string;
-  account: string;
-  password: string;
   role: string;
-  token: string;
-  updatedAt: Date;
+  accessToken: string;
+  googleAccessToken: string;
+  googleRefreshToken: string;
+  googleTokenType: string;
+  googleIdToken: string;
+  googleScope: string;
+  updatedAt: number;
 }
