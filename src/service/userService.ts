@@ -3,16 +3,15 @@ import HTTP_STATUS from "../enum/httpStatus";
 import AppError from "../model/appError";
 import { IGoogleAuthTokens, IGoogleProfile } from "../model/google";
 import logger from "../utility/logger";
-import CryptrHelper from "../utility/cryptrHelper";
 import HttpHelper from "../utility/httpHelper";
 import { ROLE } from "../enum/user";
-import { IRegister, ILogin } from "../model/request";
+import { ILogin } from "../model/request";
 import { v4 as uuidv4 } from "uuid";
 import Jwt from "jsonwebtoken";
-import { IUser, IUserFilter } from "../mongodb/document/userDocument";
+import { IUser } from "../mongodb/document/userDocument";
 import UserDBHelper from "../mongodb/DBHelper/userDBHelper";
 import { google } from "googleapis";
-import { AxiosResponse, AxiosRequestConfig } from "axios";
+import { AxiosRequestConfig } from "axios";
 
 const clientId = env.GOOGLE_API_CONFIG.CLIENT_ID;
 const clientSecret = env.GOOGLE_API_CONFIG.CLIENT_SECRET;
@@ -28,6 +27,7 @@ export default class UserService {
     try {
       const tokenReq = {
         access_type: "offline",
+        prompt: "consent", //一定會有 refresh token
         scope: env.GOOGLE_API_SCOPE.join(" ")
       };
 
