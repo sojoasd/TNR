@@ -16,4 +16,8 @@ interface IGoogleProfile {
   locale: string;
 }
 
+// interface IGoogleAlbums {
+
+// }
+
 export { IGoogleAuthTokens, IGoogleProfile };

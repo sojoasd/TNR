@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export interface IUserFilter {
-  id?: String;
+  id?: string;
   name?: string;
   role?: string;
 }

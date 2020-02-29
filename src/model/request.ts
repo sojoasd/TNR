@@ -7,11 +7,13 @@ interface ILoginUser {
   id: string;
   role: string;
   name: string;
+  epochDate: number; //create token timestamp
+  googleTokenExpSeconds: number;
 }
 
 interface IContext {
-  url: string;
+  url?: string;
   loginUser?: ILoginUser;
 }
 
-export { ILogin, IContext };
+export { ILogin, IContext, ILoginUser };

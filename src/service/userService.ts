@@ -1,15 +1,16 @@
 import env from "../utility/env";
 import HTTP_STATUS from "../enum/httpStatus";
 import AppError from "../model/appError";
-import { IContext } from "./../model/request";
+import { IContext, ILoginUser } from "./../model/request";
 import { IGoogleAuthTokens, IGoogleProfile } from "../model/google";
 import logger from "../utility/logger";
 import HttpHelper from "../utility/httpHelper";
+import { GOOGLE_API_URI } from "../enum/apiUri";
 import { ROLE } from "../enum/user";
 import { ILogin } from "../model/request";
 import { v4 as uuidv4 } from "uuid";
 import Jwt from "jsonwebtoken";
-import { IUser } from "../mongodb/document/userDocument";
+import { IUser, IUserFilter } from "../mongodb/document/userDocument";
 import UserDBHelper from "../mongodb/DBHelper/userDBHelper";
 import { google } from "googleapis";
 import { AxiosRequestConfig } from "axios";
@@ -41,23 +42,12 @@ export default class UserService {
       logger.error(fn, { inputs, msg: error.message });
       throw new AppError(error.message, HTTP_STATUS.UNAUTHORIZED);
     }
-
-    // await oauth2Client.setCredentials({
-    //   access_token: "ya29.Il_AByaOZjeOyC_MkXKohkr9qRdHpwOyZGKf5n1MhzJjW5v9U2NzSvTWGbbfxpJ0jRgOfwEO28ut_MCJYHTPFEm8epjsW5TpY5ujkqc-yQR3km4l9-sDMDZxfGDDquHQ8w",
-    //   refresh_token: "1//0eVcSDu_U58cWCgYIARAAGA4SNwF-L9Ir57R7l-mTPK3xrB1RzbQzNDmVIP5w9TD5TLfJ1eFTm1EnHDtHgSZPENoe1aG1wSPpdvM",
-    //   token_type: "Bearer",
-    //   id_token:
-    //     "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE3ZDU1ZmY0ZTEwOTkxZDZiMGVmZDM5MmI5MWEzM2U1NGMwZTIxOGIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMTc1NDAxMjc5NjAtaXE5NDVwbXNmNGZkNmJxaXBrZjNqMTNrcWptZGd2cW8uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxMTc1NDAxMjc5NjAtaXE5NDVwbXNmNGZkNmJxaXBrZjNqMTNrcWptZGd2cW8uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDg1NjMwOTQ2ODk1Mjk5MDg1NjYiLCJhdF9oYXNoIjoiVTQ1SUlBUngyNzRDc1VMMFVwMUt2QSIsIm5hbWUiOiJaZWFsIFllbiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vLW5UVkFEcEoxWmNVL0FBQUFBQUFBQUFJL0FBQUFBQUFBQUFBL0FLRjA1bkJndFozZVB4b2F4aS1ZM3UxaTJaRTlibV9qWUEvczk2LWMvcGhvdG8uanBnIiwiZ2l2ZW5fbmFtZSI6IlplYWwgIiwiZmFtaWx5X25hbWUiOiJZZW4iLCJsb2NhbGUiOiJlbiIsImlhdCI6MTU4Mjg5NDI5MSwiZXhwIjoxNTgyODk3ODkxfQ.SRDxKKk_JUdelbTSc4zWfPnBkRvJjMi6YbkHXmS0MFt4_0igcBI_G8iw6O-IpCpVRfzSu-LMIFkncyRpThqkjDpBnJu7oh3uJp6Dyz1R19iTlbTsMtkmdQvhlaGMpYVimHKwsZx4f1OrgdflGDZ-5G5DfyMhwZqi-2hMY0okdWkxqK_btBDnNHuJwl5hXESY45BCzBgB5J4O-sj5UpLJjK1MzrESPdUIhGGhMLbXmoJmna6JNnsVG8y94zQjgG7ADgOp-qwfX7_JlICjO5CBf3QpZyK-8MRDgN_JRuZKy9bb_n_hN6A1EPPqQ3phW7uVB-lLJN4S1aZnH6JF7M_dww"
-    // });
-
-    // const sss = await oauth2Client.refreshAccessToken();
-    // console.log({ sss });
   }
 
   static async afterLoginResponseToken(context: IContext, body: any) {
     const fn = "UserService.afterLoginResponseToken";
     const inputs = { context, body };
-    logger.levelVal = 20;
+    // logger.levelVal = 20;
     logger.debug(fn, inputs);
 
     try {
@@ -73,17 +63,18 @@ export default class UserService {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        url: env.GOOGLE_API_CONFIG.GET_TOKEN_URI,
+        url: GOOGLE_API_URI.GET_TOKEN_URI,
         data: reqText,
         responseType: "json"
       };
       const googleTokens = ((await HttpHelper.requestAction(requestToken)) as unknown) as IGoogleAuthTokens;
 
       logger.debug(fn, { inputs, requestToken, googleTokens });
+      console.log(fn, { inputs, requestToken, googleTokens });
 
       const requestProfile: AxiosRequestConfig = {
         method: "GET",
-        url: env.GOOGLE_API_CONFIG.GET_PROFILE_URI,
+        url: GOOGLE_API_URI.GET_PROFILE_URI,
         params: {
           alt: "json",
           access_token: googleTokens.access_token
@@ -94,30 +85,53 @@ export default class UserService {
 
       logger.debug(fn, { inputs, requestProfile, profile });
 
-      const jwtObj = {
+      const now = new Date();
+
+      const jwtObj: ILoginUser = {
         id: profile.id,
         role: ROLE.USER,
-        name: profile.name
+        name: profile.name,
+        epochDate: +now,
+        googleTokenExpSeconds: googleTokens.expires_in
       };
+
       const accessToken = Jwt.sign(jwtObj, env.TOKEN_SIGNATURE, { keyid: uuidv4(), expiresIn: env.TOKEN_EXP });
 
-      const userInfo: IUser = {
-        id: profile.id,
-        name: profile.name,
-        role: ROLE.USER,
-        accessToken: accessToken,
-        googleAccessToken: googleTokens.access_token,
-        googleRefreshToken: googleTokens.refresh_token,
-        googleTokenType: googleTokens.token_type,
-        googleIdToken: googleTokens.id_token,
-        googleScope: googleTokens.scope,
-        updatedAt: +new Date()
-      };
+      const filter: IUserFilter = { id: profile.id };
+      const user = await UserDBHelper.find(filter);
 
-      const result = await UserDBHelper.insert(userInfo);
-      logger.debug(fn, { inputs, userInfo, result });
+      logger.debug(fn, { inputs, filter, user });
 
-      const now = new Date();
+      if (user) {
+        const userInfo: IUser = {
+          accessToken: accessToken,
+          googleAccessToken: googleTokens.access_token,
+          googleRefreshToken: googleTokens.refresh_token,
+          googleTokenType: googleTokens.token_type,
+          googleIdToken: googleTokens.id_token,
+          googleScope: googleTokens.scope,
+          updatedAt: +new Date()
+        };
+
+        const result = await UserDBHelper.update(filter, userInfo);
+        logger.debug(fn, { inputs, userInfo, result });
+      } else {
+        const userInfo: IUser = {
+          id: profile.id,
+          name: profile.name,
+          role: ROLE.USER,
+          accessToken: accessToken,
+          googleAccessToken: googleTokens.access_token,
+          googleRefreshToken: googleTokens.refresh_token,
+          googleTokenType: googleTokens.token_type,
+          googleIdToken: googleTokens.id_token,
+          googleScope: googleTokens.scope,
+          updatedAt: +new Date()
+        };
+
+        const result = await UserDBHelper.insert(userInfo);
+        logger.debug(fn, { inputs, userInfo, result });
+      }
 
       return {
         id: profile.id,
@@ -128,6 +142,43 @@ export default class UserService {
       };
     } catch (error) {
       logger.error(fn, { inputs, msg: error.message });
+      throw new AppError(error.message, HTTP_STATUS.UNAUTHORIZED);
+    }
+  }
+
+  static async refreshToken(loginUser: ILoginUser) {
+    const fn = "UserService.refreshToken";
+
+    try {
+      logger.debug(fn, { loginUser });
+
+      const filter: IUserFilter = { id: loginUser.id };
+      const user = await UserDBHelper.find(filter);
+
+      logger.debug(fn, { user, loginUser });
+
+      await oauth2Client.setCredentials({
+        access_token: user.googleAccessToken,
+        refresh_token: user.googleRefreshToken,
+        token_type: user.googleTokenType,
+        id_token: user.googleIdToken
+      });
+
+      const refresh = await oauth2Client.refreshAccessToken();
+      logger.debug(fn, { loginUser, user, refresh });
+
+      const userInfo: IUser = {
+        googleAccessToken: refresh.credentials.access_token,
+        googleRefreshToken: refresh.credentials.refresh_token,
+        googleTokenType: refresh.credentials.token_type,
+        googleIdToken: refresh.credentials.id_token,
+        updatedAt: +new Date()
+      };
+
+      const result = await UserDBHelper.update(filter, userInfo);
+      logger.debug(fn, { loginUser, userInfo, result });
+    } catch (error) {
+      logger.error(fn, { loginUser, msg: error.message });
       throw new AppError(error.message, HTTP_STATUS.UNAUTHORIZED);
     }
   }

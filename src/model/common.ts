@@ -11,8 +11,6 @@ interface IGoogleApiConfig {
   CLIENT_ID: string;
   CLIENT_SECRET: string;
   REDIRECT_URI: string;
-  GET_TOKEN_URI: string;
-  GET_PROFILE_URI: string;
 }
 
 interface IEnvironment {
