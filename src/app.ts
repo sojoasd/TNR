@@ -22,7 +22,7 @@ app.use((error, req, res, next) => {
     }
   });
 });
-
+// console.log("__dirname: ", __dirname);
 app.set("port", env.PORT);
 
 app.listen(env.PORT, async () => {
