@@ -1,0 +1,5 @@
+const ERROR_CODE = {
+  INVALID_OAUTH_TOKEN: "INVALID_OAUTH_TOKEN"
+};
+
+export default ERROR_CODE;

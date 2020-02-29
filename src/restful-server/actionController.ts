@@ -1,4 +1,5 @@
 import logger from "./../utility/logger";
+import { IContext } from "./../model/request";
 
 export default class ActionController {
   static callAsync(afunc: any) {
@@ -6,15 +7,21 @@ export default class ActionController {
       const fn = "ActionController.callAsync";
 
       try {
-        // console.log(fn, req.url);
-
         const header = req.headers;
         const body = req.body;
         const url = req.url;
 
         logger.debug(fn, { url, header, body });
 
-        const result = await afunc(url, header, body);
+        const { loginUser } = res;
+        const context: IContext = {
+          url: url,
+          loginUser: loginUser
+        };
+
+        logger.debug(fn, { url, header, body, context });
+
+        const result = await afunc(context, body);
 
         res.json(result);
       } catch (error) {

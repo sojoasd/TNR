@@ -1,6 +1,7 @@
 import env from "../utility/env";
 import HTTP_STATUS from "../enum/httpStatus";
 import AppError from "../model/appError";
+import { IContext } from "./../model/request";
 import { IGoogleAuthTokens, IGoogleProfile } from "../model/google";
 import logger from "../utility/logger";
 import HttpHelper from "../utility/httpHelper";
@@ -19,9 +20,9 @@ const redirectUri = env.GOOGLE_API_CONFIG.REDIRECT_URI;
 const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
 export default class UserService {
-  static login(url: string, header: Headers, body: ILogin): string {
+  static login(context: IContext, body: ILogin): string {
     const fn = "UserService.login";
-    const inputs = { url, header, body };
+    const inputs = { context, body };
     logger.debug(fn, inputs);
 
     try {
@@ -53,14 +54,14 @@ export default class UserService {
     // console.log({ sss });
   }
 
-  static async afterLoginResponseToken(url: string, header: Headers, body: any) {
+  static async afterLoginResponseToken(context: IContext, body: any) {
     const fn = "UserService.afterLoginResponseToken";
-    const inputs = { url, header, body };
+    const inputs = { context, body };
     logger.levelVal = 20;
     logger.debug(fn, inputs);
 
     try {
-      const code = url.replace(/\/afterLoginResponseToken\?/g, "").split("&scope")[0];
+      const code = context.url.replace(/\/afterLoginResponseToken\?/g, "").split("&scope")[0];
 
       const reqText = `${code}&client_id=${clientId}&client_secret=${clientSecret}&grant_type=authorization_code&redirect_uri=${redirectUri}`;
 
@@ -95,7 +96,8 @@ export default class UserService {
 
       const jwtObj = {
         id: profile.id,
-        role: ROLE.USER
+        role: ROLE.USER,
+        name: profile.name
       };
       const accessToken = Jwt.sign(jwtObj, env.TOKEN_SIGNATURE, { keyid: uuidv4(), expiresIn: env.TOKEN_EXP });
 

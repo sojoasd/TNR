@@ -3,4 +3,15 @@ interface ILogin {
   password: string;
 }
 
-export { ILogin };
+interface ILoginUser {
+  id: string;
+  role: string;
+  name: string;
+}
+
+interface IContext {
+  url: string;
+  loginUser?: ILoginUser;
+}
+
+export { ILogin, IContext };
