@@ -1,5 +1,3 @@
-import { Double } from "bson";
-
 interface IMongoConfig {
   URI: string;
   AUTO_INDEX: boolean;
@@ -26,15 +24,6 @@ interface IEnvironment {
   GOOGLE_API_SCOPE: string[];
 }
 
-interface IFileMetadata {
-  id: string; //file id
-  folderId?: string;
-  fileName?: string;
-  latitude: Double;
-  longitude: Double;
-  createEpochDate: number;
-}
-
 interface IDownloadInput {
   googleAccessToken: string;
   folderId: string;
@@ -42,4 +31,10 @@ interface IDownloadInput {
   fileName: string;
 }
 
-export { IEnvironment, IFileMetadata, IDownloadInput };
+interface IFileListCheckWithDB {
+  id: string;
+  fileName: string;
+  isDBExist: boolean;
+}
+
+export { IEnvironment, IDownloadInput, IFileListCheckWithDB };

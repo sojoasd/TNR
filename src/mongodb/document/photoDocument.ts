@@ -3,6 +3,7 @@ import { Double } from "mongodb";
 
 export interface IPhotoFilter {
   id?: string;
+  folderId?: string;
   fileName?: string;
 }
 
@@ -16,7 +17,7 @@ export interface IPhoto {
 }
 
 export interface IPhotoModel extends mongoose.Model<IPhotoDocument> {
-  findPhoto(wheres: IPhotoFilter): IPhoto;
+  findPhotoList(wheres: IPhotoFilter): IPhoto[];
 }
 
 export default interface IPhotoDocument extends mongoose.Document {

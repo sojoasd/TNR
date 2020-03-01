@@ -30,7 +30,24 @@ export default class PhotoDBHelper {
       logger.debug(fn, { filter });
 
       const db: IPhotoModel = PhotoSchema(mongoose.connection);
-      let result = await db.findPhoto(filter);
+      let result = await db.findPhotoList(filter);
+      logger.debug(fn, { result });
+
+      return result[0];
+    } catch (error) {
+      logger.error(fn, { msg: error.message, filter });
+      throw error;
+    }
+  }
+
+  static async findList(filter: IPhotoFilter): Promise<IPhoto[]> {
+    const fn = "PhotoDBHelper.findList";
+
+    try {
+      logger.debug(fn, { filter });
+
+      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      let result = await db.findPhotoList(filter);
       logger.debug(fn, { result });
 
       return result;
@@ -51,6 +68,23 @@ export default class PhotoDBHelper {
       logger.debug(fn, { result, filter, updateData });
     } catch (error) {
       logger.error(fn, { msg: error.message, filter, updateData });
+      throw error;
+    }
+  }
+
+  static async delete(fileIds: string[]): Promise<void> {
+    const fn = "PhotoDBHelper.delete";
+
+    try {
+      logger.debug(fn, { fileIds });
+
+      const condition = { id: { $in: fileIds } };
+
+      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const result = await db.deleteMany(condition);
+      logger.debug(fn, { result });
+    } catch (error) {
+      logger.error(fn, { msg: error.message, fileIds });
       throw error;
     }
   }

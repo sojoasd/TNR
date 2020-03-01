@@ -4,15 +4,17 @@ import AppError from "../model/appError";
 import { IContext, ILoginUser } from "./../model/request";
 import logger from "../utility/logger";
 import UserDBHelper from "../mongodb/DBHelper/userDBHelper";
+import PhotoDBHelper from "../mongodb/DBHelper/photoDBHelper";
 import { google } from "googleapis";
 import { IUserFilter } from "../mongodb/document/userDocument";
 import { AxiosRequestConfig } from "axios";
 import HttpHelper from "../utility/httpHelper";
 import exif from "exif-parser";
 import { GOOGLE_API_URI } from "../enum/apiUri";
-import { IFileMetadata, IDownloadInput } from "../model/common";
+import { IDownloadInput, IFileListCheckWithDB } from "../model/common";
 import { IDriverFileIds, IDriverFileQuery, IDriverFolderQuery } from "../model/google";
 import { isObjectEmpty } from "../utility/common";
+import { IPhoto, IPhotoFilter } from "../mongodb/document/photoDocument";
 
 const FOLDER_KEYWORD = "HomeVisit";
 const clientId = env.GOOGLE_API_CONFIG.CLIENT_ID;
@@ -81,7 +83,7 @@ export default class DriverService {
     }
   }
 
-  static async files(context: IContext, body: IDriverFileQuery) {
+  static async files(context: IContext, body: IDriverFileQuery): Promise<IFileListCheckWithDB[]> {
     const fn = "DriverService.files";
     const inputs = { context, body };
 
@@ -100,15 +102,27 @@ export default class DriverService {
       //   console.log("counts", files.fileIds.length);
       //   const sss = await DriverService.importFiles(context, files);
       //   console.log(sss);
+      const filter: IPhotoFilter = { folderId: body.folderId };
+      const dbData = await PhotoDBHelper.findList(filter);
 
-      return res.data.files;
+      const fileListCheckWithDB: IFileListCheckWithDB[] = [];
+
+      res.data.files.map(m => {
+        fileListCheckWithDB.push({
+          id: m.id,
+          fileName: m.name,
+          isDBExist: dbData.some(s => s.id === m.id)
+        });
+      });
+
+      return fileListCheckWithDB;
     } catch (error) {
       logger.error(fn, { inputs, msg: error.message });
       throw new AppError(error.message, HTTP_STATUS.BAD_REQUEST);
     }
   }
 
-  static async importFiles(context: IContext, body: IDriverFileIds): Promise<IFileMetadata[]> {
+  static async importFiles(context: IContext, body: IDriverFileIds): Promise<IPhoto[]> {
     const fn = "DriverService.importFiles";
     const inputs = { context, body };
 
@@ -127,7 +141,7 @@ export default class DriverService {
       const fileMetadataAry = await Promise.all(
         body.fileIds.map(async fileId => {
           try {
-            const fileName = fileList.find(f => f.id === fileId).name;
+            const fileName = fileList.find(f => f.id === fileId).fileName;
             const downloadInput: IDownloadInput = {
               googleAccessToken: oAuth2Client.credentials.access_token,
               folderId: body.folderId,
@@ -135,6 +149,8 @@ export default class DriverService {
               fileName: fileName
             };
             const metaData = await DriverService.downloadFile(downloadInput);
+            await PhotoDBHelper.insert(metaData);
+
             return metaData;
           } catch (error) {
             logger.debug(`${fn}, fileId: ${fileId}`, { msg: error.message });
@@ -149,7 +165,7 @@ export default class DriverService {
     }
   }
 
-  static async downloadFile(downloadInput: IDownloadInput): Promise<IFileMetadata> {
+  static async downloadFile(downloadInput: IDownloadInput): Promise<IPhoto> {
     const fn = "DriverService.importFiles";
     const inputs = { downloadInput };
 
@@ -174,7 +190,7 @@ export default class DriverService {
       const buffer = await HttpHelper.requestAction(requestPhoto);
       const parser = exif.create(buffer);
       const result = parser.parse();
-      const fileMetadata: IFileMetadata = {
+      const fileMetadata: IPhoto = {
         id: downloadInput.fileId,
         folderId: downloadInput.folderId,
         fileName: downloadInput.fileName,
@@ -184,6 +200,20 @@ export default class DriverService {
       };
 
       return fileMetadata;
+    } catch (error) {
+      logger.error(fn, { inputs, msg: error.message });
+      throw error;
+    }
+  }
+
+  static async delete(context: IContext, body: IDriverFileIds): Promise<void> {
+    const fn = "DriverService.importFiles";
+    const inputs = { context, body };
+
+    try {
+      logger.debug(fn, inputs);
+      await PhotoDBHelper.delete(body.fileIds);
+      logger.debug(`${fn} ok`, inputs);
     } catch (error) {
       logger.error(fn, { inputs, msg: error.message });
       throw error;

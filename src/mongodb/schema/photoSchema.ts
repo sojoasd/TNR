@@ -13,17 +13,20 @@ const PhotoSchema = new mongoose.Schema(
     },
     folderId: {
       type: String,
-      index: true
+      index: true,
+      required: true
     },
     fileName: {
       type: String,
       index: true
     },
     latitude: {
-      type: Number
+      type: Number,
+      required: true
     },
     longitude: {
-      type: Number
+      type: Number,
+      required: true
     },
     createEpochDate: {
       type: Number,
@@ -41,15 +44,14 @@ const PhotoSchema = new mongoose.Schema(
     strict: false
   }
 ).static({
-  async findPhoto(wheres: IPhotoFilter): Promise<IPhoto> {
-    const fn = "PhotoSchema.findPhoto";
+  async findPhotoList(wheres: IPhotoFilter): Promise<IPhoto[]> {
+    const fn = "PhotoSchema.findPhotoList";
 
     logger.debug(fn, { wheres });
     const photos: Promise<IPhotoDocument[]> = await this.find(wheres, null);
-    const photo = photos[0];
-    logger.debug(fn, { photo });
+    logger.debug(fn, { photos });
 
-    return photo;
+    return photos;
   }
 });
 

@@ -7,5 +7,6 @@ import DriverService from "../service/driverService";
 router.get("/folders", authDirective, ActionController.callAsync(DriverService.folders));
 router.get("/files", authDirective, ActionController.callAsync(DriverService.files));
 router.post("/importFiles", authDirective, ActionController.callAsync(DriverService.importFiles));
+router.delete("/files", authDirective, ActionController.callAsync(DriverService.delete));
 
 export default router;
