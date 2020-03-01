@@ -1,9 +1,9 @@
 import logger from "../../utility/logger";
 import mongoose from "mongoose";
-import IPhotoDocument, { IPhoto, IPhotoFilter, IPhotoModel } from "../document/photoDocument";
+import IFileDocument, { IFile, IFileFilter, IFileModel } from "../document/fileDocument";
 import DB_TABLE from "../../model/table";
 
-const PhotoSchema = new mongoose.Schema(
+const FileSchema = new mongoose.Schema(
   {
     id: {
       type: String,
@@ -44,11 +44,11 @@ const PhotoSchema = new mongoose.Schema(
     strict: false
   }
 ).static({
-  async findPhotoList(wheres: IPhotoFilter): Promise<IPhoto[]> {
-    const fn = "PhotoSchema.findPhotoList";
+  async findPhotoList(wheres: IFileFilter): Promise<IFile[]> {
+    const fn = "FileSchema.findPhotoList";
 
     logger.debug(fn, { wheres });
-    const photos: Promise<IPhotoDocument[]> = await this.find(wheres, null);
+    const photos: Promise<IFileDocument[]> = await this.find(wheres, null);
     logger.debug(fn, { photos });
 
     return photos;
@@ -56,5 +56,5 @@ const PhotoSchema = new mongoose.Schema(
 });
 
 export default function(conn: mongoose.Connection) {
-  return conn.model<IPhotoDocument, IPhotoModel>(DB_TABLE.PHOTO, PhotoSchema);
+  return conn.model<IFileDocument, IFileModel>(DB_TABLE.File, FileSchema);
 }

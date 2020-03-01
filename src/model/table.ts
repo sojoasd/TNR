@@ -1,6 +1,6 @@
 const DB_TABLE = {
   USER: "User",
-  PHOTO: "Photo"
+  File: "File"
 };
 
 export default DB_TABLE;

@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 import { Double } from "mongodb";
 
-export interface IPhotoFilter {
+export interface IFileFilter {
   id?: string;
   folderId?: string;
   fileName?: string;
 }
 
-export interface IPhoto {
+export interface IFile {
   id: string;
   folderId: string;
   fileName: string;
@@ -16,11 +16,11 @@ export interface IPhoto {
   createEpochDate: Double;
 }
 
-export interface IPhotoModel extends mongoose.Model<IPhotoDocument> {
-  findPhotoList(wheres: IPhotoFilter): IPhoto[];
+export interface IFileModel extends mongoose.Model<IFileDocument> {
+  findPhotoList(wheres: IFileFilter): IFile[];
 }
 
-export default interface IPhotoDocument extends mongoose.Document {
+export default interface IFileDocument extends mongoose.Document {
   id: string;
   folderId: string;
   fileName: string;

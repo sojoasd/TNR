@@ -4,7 +4,7 @@ import AppError from "../model/appError";
 import { IContext, ILoginUser } from "./../model/request";
 import logger from "../utility/logger";
 import UserDBHelper from "../mongodb/DBHelper/userDBHelper";
-import PhotoDBHelper from "../mongodb/DBHelper/photoDBHelper";
+import FileDBHelper from "../mongodb/DBHelper/fileDBHelper";
 import { google } from "googleapis";
 import { IUserFilter } from "../mongodb/document/userDocument";
 import { AxiosRequestConfig } from "axios";
@@ -14,7 +14,7 @@ import { GOOGLE_API_URI } from "../enum/apiUri";
 import { IDownloadInput, IFileListCheckWithDB } from "../model/common";
 import { IDriverFileIds, IDriverFileQuery, IDriverFolderQuery } from "../model/google";
 import { isObjectEmpty } from "../utility/common";
-import { IPhoto, IPhotoFilter } from "../mongodb/document/photoDocument";
+import { IFile, IFileFilter } from "../mongodb/document/fileDocument";
 
 const FOLDER_KEYWORD = "HomeVisit";
 const clientId = env.GOOGLE_API_CONFIG.CLIENT_ID;
@@ -102,8 +102,8 @@ export default class DriverService {
       //   console.log("counts", files.fileIds.length);
       //   const sss = await DriverService.importFiles(context, files);
       //   console.log(sss);
-      const filter: IPhotoFilter = { folderId: body.folderId };
-      const dbData = await PhotoDBHelper.findList(filter);
+      const filter: IFileFilter = { folderId: body.folderId };
+      const dbData = await FileDBHelper.findList(filter);
 
       const fileListCheckWithDB: IFileListCheckWithDB[] = [];
 
@@ -122,7 +122,7 @@ export default class DriverService {
     }
   }
 
-  static async importFiles(context: IContext, body: IDriverFileIds): Promise<IPhoto[]> {
+  static async importFiles(context: IContext, body: IDriverFileIds): Promise<IFile[]> {
     const fn = "DriverService.importFiles";
     const inputs = { context, body };
 
@@ -149,7 +149,7 @@ export default class DriverService {
               fileName: fileName
             };
             const metaData = await DriverService.downloadFile(downloadInput);
-            await PhotoDBHelper.insert(metaData);
+            await FileDBHelper.insert(metaData);
 
             return metaData;
           } catch (error) {
@@ -165,7 +165,7 @@ export default class DriverService {
     }
   }
 
-  static async downloadFile(downloadInput: IDownloadInput): Promise<IPhoto> {
+  static async downloadFile(downloadInput: IDownloadInput): Promise<IFile> {
     const fn = "DriverService.importFiles";
     const inputs = { downloadInput };
 
@@ -190,7 +190,7 @@ export default class DriverService {
       const buffer = await HttpHelper.requestAction(requestPhoto);
       const parser = exif.create(buffer);
       const result = parser.parse();
-      const fileMetadata: IPhoto = {
+      const fileMetadata: IFile = {
         id: downloadInput.fileId,
         folderId: downloadInput.folderId,
         fileName: downloadInput.fileName,
@@ -212,7 +212,7 @@ export default class DriverService {
 
     try {
       logger.debug(fn, inputs);
-      await PhotoDBHelper.delete(body.fileIds);
+      await FileDBHelper.delete(body.fileIds);
       logger.debug(`${fn} ok`, inputs);
     } catch (error) {
       logger.error(fn, { inputs, msg: error.message });

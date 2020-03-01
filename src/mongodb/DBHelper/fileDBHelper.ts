@@ -1,18 +1,18 @@
 import logger from "../../utility/logger";
 import mongoose from "mongoose";
-import { IPhoto, IPhotoFilter, IPhotoModel } from "../document/photoDocument";
-import PhotoSchema from "../schema/photoSchema";
+import { IFile, IFileFilter, IFileModel } from "../document/fileDocument";
+import FileSchema from "../schema/fileSchema";
 
-export default class PhotoDBHelper {
+export default class FileDBHelper {
   constructor() {}
 
-  static async insert(photoInfo: IPhoto): Promise<IPhoto[]> {
-    const fn = "PhotoDBHelper.insert";
+  static async insert(photoInfo: IFile): Promise<IFile[]> {
+    const fn = "FileDBHelper.insert";
 
     try {
       logger.debug(fn, { photoInfo });
 
-      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const db: IFileModel = FileSchema(mongoose.connection);
       let result = await db.create([photoInfo]);
       logger.debug(fn, { result });
 
@@ -23,13 +23,13 @@ export default class PhotoDBHelper {
     }
   }
 
-  static async find(filter: IPhotoFilter): Promise<IPhoto> {
-    const fn = "PhotoDBHelper.find";
+  static async find(filter: IFileFilter): Promise<IFile> {
+    const fn = "FileDBHelper.find";
 
     try {
       logger.debug(fn, { filter });
 
-      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const db: IFileModel = FileSchema(mongoose.connection);
       let result = await db.findPhotoList(filter);
       logger.debug(fn, { result });
 
@@ -40,13 +40,13 @@ export default class PhotoDBHelper {
     }
   }
 
-  static async findList(filter: IPhotoFilter): Promise<IPhoto[]> {
-    const fn = "PhotoDBHelper.findList";
+  static async findList(filter: IFileFilter): Promise<IFile[]> {
+    const fn = "FileDBHelper.findList";
 
     try {
       logger.debug(fn, { filter });
 
-      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const db: IFileModel = FileSchema(mongoose.connection);
       let result = await db.findPhotoList(filter);
       logger.debug(fn, { result });
 
@@ -57,13 +57,13 @@ export default class PhotoDBHelper {
     }
   }
 
-  static async update(filter: IPhotoFilter, updateData: IPhoto): Promise<void> {
-    const fn = "PhotoDBHelper.update";
+  static async update(filter: IFileFilter, updateData: IFile): Promise<void> {
+    const fn = "FileDBHelper.update";
 
     try {
       logger.debug(fn, { filter, updateData });
 
-      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const db: IFileModel = FileSchema(mongoose.connection);
       const result = await db.updateOne(filter, updateData, { upsert: true });
       logger.debug(fn, { result, filter, updateData });
     } catch (error) {
@@ -73,14 +73,14 @@ export default class PhotoDBHelper {
   }
 
   static async delete(fileIds: string[]): Promise<void> {
-    const fn = "PhotoDBHelper.delete";
+    const fn = "FileDBHelper.delete";
 
     try {
       logger.debug(fn, { fileIds });
 
       const condition = { id: { $in: fileIds } };
 
-      const db: IPhotoModel = PhotoSchema(mongoose.connection);
+      const db: IFileModel = FileSchema(mongoose.connection);
       const result = await db.deleteMany(condition);
       logger.debug(fn, { result });
     } catch (error) {
