@@ -10,7 +10,7 @@ import { AxiosRequestConfig } from "axios";
 import HttpHelper from "../utility/httpHelper";
 import exif from "exif-parser";
 import { GOOGLE_API_URI } from "../enum/apiUri";
-import { IFileMetadata } from "../model/common";
+import { IFileMetadata, IDownloadInput } from "../model/common";
 import { IDriverFileIds, IDriverFileQuery, IDriverFolderQuery } from "../model/google";
 import { isObjectEmpty } from "../utility/common";
 
@@ -127,23 +127,20 @@ export default class DriverService {
       const fileMetadataAry = await Promise.all(
         body.fileIds.map(async fileId => {
           try {
-            const metaData = await DriverService.downloadFile(oAuth2Client.credentials.access_token, fileId);
+            const fileName = fileList.find(f => f.id === fileId).name;
+            const downloadInput: IDownloadInput = {
+              googleAccessToken: oAuth2Client.credentials.access_token,
+              folderId: body.folderId,
+              fileId: fileId,
+              fileName: fileName
+            };
+            const metaData = await DriverService.downloadFile(downloadInput);
             return metaData;
           } catch (error) {
             logger.debug(`${fn}, fileId: ${fileId}`, { msg: error.message });
           }
         })
       );
-
-      fileMetadataAry.map(m => {
-        m.fileName = fileList.find(f => f.id === m.id).name;
-
-        if (!m.latitude || !m.longitude) {
-          m.latitude = 0.0;
-          m.longitude = 0.0;
-          m.createEpochDate = +new Date();
-        }
-      });
 
       return fileMetadataAry;
     } catch (error) {
@@ -152,15 +149,15 @@ export default class DriverService {
     }
   }
 
-  static async downloadFile(googleAccessToken: string, fileId: string): Promise<IFileMetadata> {
+  static async downloadFile(downloadInput: IDownloadInput): Promise<IFileMetadata> {
     const fn = "DriverService.importFiles";
-    const inputs = { googleAccessToken };
+    const inputs = { downloadInput };
 
     try {
       logger.debug(fn, inputs);
 
       const requestPhoto: AxiosRequestConfig = {
-        url: `${GOOGLE_API_URI.GET_FILE_URI}/${fileId}?alt=media`,
+        url: `${GOOGLE_API_URI.GET_FILE_URI}/${downloadInput.fileId}?alt=media`,
         method: "GET",
         headers: {
           "Accept-Encoding": "gzip",
@@ -178,10 +175,12 @@ export default class DriverService {
       const parser = exif.create(buffer);
       const result = parser.parse();
       const fileMetadata: IFileMetadata = {
-        id: fileId,
-        latitude: result.tags.GPSLatitude,
-        longitude: result.tags.GPSLongitude,
-        createEpochDate: result.tags.CreateDate * 1000
+        id: downloadInput.fileId,
+        folderId: downloadInput.folderId,
+        fileName: downloadInput.fileName,
+        latitude: result.tags.GPSLatitude ? result.tags.GPSLatitude : 0.0,
+        longitude: result.tags.GPSLongitude ? result.tags.GPSLongitude : 0.0,
+        createEpochDate: result.tags.CreateDate ? result.tags.CreateDate : +new Date()
       };
 
       return fileMetadata;

@@ -28,10 +28,18 @@ interface IEnvironment {
 
 interface IFileMetadata {
   id: string; //file id
+  folderId?: string;
   fileName?: string;
   latitude: Double;
   longitude: Double;
   createEpochDate: number;
 }
 
-export { IEnvironment, IFileMetadata };
+interface IDownloadInput {
+  googleAccessToken: string;
+  folderId: string;
+  fileId: string;
+  fileName: string;
+}
+
+export { IEnvironment, IFileMetadata, IDownloadInput };

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Double } from "mongodb";
 
 export interface IUserFilter {
   id?: string;
@@ -16,7 +17,7 @@ export interface IUser {
   googleTokenType?: string;
   googleIdToken?: string;
   googleScope?: string;
-  updatedAt?: number;
+  updatedAt?: Double;
 }
 
 export interface IUserModel extends mongoose.Model<IUserDocument> {
@@ -33,5 +34,5 @@ export default interface IUserDocument extends mongoose.Document {
   googleTokenType: string;
   googleIdToken: string;
   googleScope: string;
-  updatedAt: number;
+  updatedAt: Double;
 }

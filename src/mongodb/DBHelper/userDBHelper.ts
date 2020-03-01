@@ -1,26 +1,24 @@
 import logger from "../../utility/logger";
 import mongoose from "mongoose";
-import IUserDocument, { IUserModel, IUserFilter, IUser } from "../document/userDocument";
+import { IUserModel, IUserFilter, IUser } from "../document/userDocument";
 import UserSchema from "../schema/userSchema";
-import { clearModels } from "../clear";
 
 export default class UserDBHelper {
   constructor() {}
 
-  static async insert(userInfo: IUser): Promise<IUser[]> {
+  static async insert(userInfo: IUser): Promise<IUser> {
     const fn = "UserDBHelper.insert";
 
     try {
       logger.debug(fn, { userInfo });
 
-      const userDB: IUserModel = UserSchema(mongoose.connection);
-      let userResult = await userDB.create([userInfo]);
-
+      const db: IUserModel = UserSchema(mongoose.connection);
+      let userResult = await db.create([userInfo]);
       logger.debug(fn, { userResult });
 
       return userResult[0].toObject();
     } catch (error) {
-      logger.error(fn, { msg: error.message });
+      logger.error(fn, { msg: error.message, userInfo });
       throw error;
     }
   }
@@ -31,14 +29,13 @@ export default class UserDBHelper {
     try {
       logger.debug(fn, { filter });
 
-      const userDB: IUserModel = UserSchema(mongoose.connection);
-      let userResult = await userDB.findUser(filter);
-
+      const db: IUserModel = UserSchema(mongoose.connection);
+      let userResult = await db.findUser(filter);
       logger.debug(fn, { userResult });
 
       return userResult;
     } catch (error) {
-      logger.error(fn, { msg: error.message });
+      logger.error(fn, { msg: error.message, filter });
       throw error;
     }
   }
@@ -48,11 +45,12 @@ export default class UserDBHelper {
 
     try {
       logger.debug(fn, { filter, updateData });
-      const userDB: IUserModel = UserSchema(mongoose.connection);
-      const result = await userDB.updateOne(filter, updateData, { upsert: true });
+
+      const db: IUserModel = UserSchema(mongoose.connection);
+      const result = await db.updateOne(filter, updateData, { upsert: true });
       logger.debug(fn, { result, filter, updateData });
     } catch (error) {
-      logger.error(fn, { msg: error.message });
+      logger.error(fn, { msg: error.message, filter, updateData });
       throw error;
     }
   }

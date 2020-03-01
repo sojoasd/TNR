@@ -70,7 +70,7 @@ export default class UserService {
       const googleTokens = ((await HttpHelper.requestAction(requestToken)) as unknown) as IGoogleAuthTokens;
 
       logger.debug(fn, { inputs, requestToken, googleTokens });
-      console.log(fn, { inputs, requestToken, googleTokens });
+      // console.log(fn, { inputs, requestToken, googleTokens });
 
       const requestProfile: AxiosRequestConfig = {
         method: "GET",
