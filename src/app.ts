@@ -4,6 +4,7 @@ import express from "express";
 import Mongodb from "./mongodb/index";
 import RestfulAccount from "./restful-server/account";
 import RestfulPhoto from "./restful-server/photo";
+import RestfulDriver from "./restful-server/driver";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/account", RestfulAccount);
 app.use("/photo", RestfulPhoto);
+app.use("/driver", RestfulDriver);
 
 app.use((error, req, res, next) => {
   logger.debug({ header: req.headers, body: req.body, message: error.message });

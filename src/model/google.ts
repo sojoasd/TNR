@@ -16,8 +16,18 @@ interface IGoogleProfile {
   locale: string;
 }
 
-// interface IGoogleAlbums {
+interface IDriverFileQuery {
+  folderId: string;
+}
 
-// }
+interface IDriverFileIds {
+  folderId: string;
+  fileIds: string[];
+}
 
-export { IGoogleAuthTokens, IGoogleProfile };
+interface IDriverFolderQuery {
+  keyword?: string;
+  folderId?: string;
+}
+
+export { IGoogleAuthTokens, IGoogleProfile, IDriverFileQuery, IDriverFileIds, IDriverFolderQuery };

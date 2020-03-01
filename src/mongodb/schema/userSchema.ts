@@ -38,7 +38,8 @@ const UserSchema = new mongoose.Schema(
     },
     googleIdToken: {
       type: String,
-      unique: true
+      text: true,
+      index: false
     },
     googleScope: {
       type: String
@@ -72,5 +73,6 @@ const UserSchema = new mongoose.Schema(
 });
 
 export default function(conn: mongoose.Connection) {
+  conn.db.admin().command({ setParameter: 1, failIndexKeyTooLong: false });
   return conn.model<IUserDocument, IUserModel>(DB_TABLE.USER, UserSchema);
 }

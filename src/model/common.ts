@@ -1,3 +1,5 @@
+import { Double } from "bson";
+
 interface IMongoConfig {
   URI: string;
   AUTO_INDEX: boolean;
@@ -24,4 +26,12 @@ interface IEnvironment {
   GOOGLE_API_SCOPE: string[];
 }
 
-export { IEnvironment };
+interface IFileMetadata {
+  id: string; //file id
+  fileName?: string;
+  latitude: Double;
+  longitude: Double;
+  createEpochDate: number;
+}
+
+export { IEnvironment, IFileMetadata };
