@@ -8,5 +8,6 @@ router.get("/folders", authDirective, ActionController.callAsync(DriverService.f
 router.get("/files", authDirective, ActionController.callAsync(DriverService.files));
 router.post("/importFiles", authDirective, ActionController.callAsync(DriverService.importFiles));
 router.delete("/files", authDirective, ActionController.callAsync(DriverService.delete));
+router.patch("/files", authDirective, ActionController.callAsync(DriverService.update));
 
 export default router;

@@ -141,6 +141,9 @@ export default class DriverService {
       const fileMetadataAry = await Promise.all(
         body.fileIds.map(async fileId => {
           try {
+            //DB exist, don't insert
+            if (fileList.some(s => s.id === fileId && s.isDBExist)) return;
+
             const fileName = fileList.find(f => f.id === fileId).fileName;
             const downloadInput: IDownloadInput = {
               googleAccessToken: oAuth2Client.credentials.access_token,
@@ -206,8 +209,26 @@ export default class DriverService {
     }
   }
 
+  static async update(context: IContext, body: IFile): Promise<void> {
+    const fn = "DriverService.update";
+    const inputs = { context, body };
+
+    try {
+      logger.debug(fn, inputs);
+
+      const filter: IFileFilter = { id: body.id };
+      delete body.id;
+
+      await FileDBHelper.update(filter, body);
+      logger.debug(`${fn} ok`, inputs);
+    } catch (error) {
+      logger.error(fn, { inputs, msg: error.message });
+      throw error;
+    }
+  }
+
   static async delete(context: IContext, body: IDriverFileIds): Promise<void> {
-    const fn = "DriverService.importFiles";
+    const fn = "DriverService.delete";
     const inputs = { context, body };
 
     try {

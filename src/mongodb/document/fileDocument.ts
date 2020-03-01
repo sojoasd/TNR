@@ -8,12 +8,12 @@ export interface IFileFilter {
 }
 
 export interface IFile {
-  id: string;
-  folderId: string;
-  fileName: string;
-  latitude: number;
-  longitude: number;
-  createEpochDate: Double;
+  id?: string;
+  folderId?: string;
+  fileName?: string;
+  latitude?: number;
+  longitude?: number;
+  createEpochDate?: Double;
 }
 
 export interface IFileModel extends mongoose.Model<IFileDocument> {
