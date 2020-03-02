@@ -16,4 +16,8 @@ interface IContext {
   loginUser?: ILoginUser;
 }
 
-export { ILogin, IContext, ILoginUser };
+interface IClientLogin {
+  code: string;
+}
+
+export { ILogin, IContext, ILoginUser, IClientLogin };

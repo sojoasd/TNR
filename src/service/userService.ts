@@ -1,7 +1,7 @@
 import env from "../utility/env";
 import HTTP_STATUS from "../enum/httpStatus";
 import AppError from "../model/appError";
-import { IContext, ILoginUser } from "./../model/request";
+import { IContext, ILoginUser, IClientLogin } from "./../model/request";
 import { IGoogleAuthTokens, IGoogleProfile } from "../model/google";
 import logger from "../utility/logger";
 import HttpHelper from "../utility/httpHelper";
@@ -44,19 +44,14 @@ export default class UserService {
     }
   }
 
-  static async afterLoginResponseToken(context: IContext, body: any) {
+  static async afterLoginResponseToken(context: IContext, body: IClientLogin) {
     const fn = "UserService.afterLoginResponseToken";
     const inputs = { context, body };
-    // logger.levelVal = 20;
-    logger.debug(fn, inputs);
 
     try {
-      const code = context.url.replace(/\/afterLoginResponseToken\?/g, "").split("&scope")[0];
+      logger.debug(fn, inputs);
 
-      const reqText = `${code}&client_id=${clientId}&client_secret=${clientSecret}&grant_type=authorization_code&redirect_uri=${redirectUri}`;
-
-      // const { tokens } = await oauth2Client.getToken(code);
-      // console.log(fn, { tokens });
+      const reqText = `${body.code}&client_id=${clientId}&client_secret=${clientSecret}&grant_type=authorization_code&redirect_uri=${redirectUri}`;
 
       const requestToken: AxiosRequestConfig = {
         method: "POST",
