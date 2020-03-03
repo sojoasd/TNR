@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "ts:start": "ts-node src/app.ts"
+    "ts:start": "ts-node src/app.ts",
+    "build": "webpack --config webpack.js",
+    "start": "node dist/server",
+    "dev": "nodemon -x ts-node src/app.ts",
+    "init-sh": "chmod +x ./init.sh; ./init.sh -e dev -l local"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +18,7 @@
     "@types/uuid": "^7.0.0",
     "@types/webpack-env": "^1.15.1",
     "axios": "^0.19.2",
-    "clean-webpack-plugin": "^3.0.0",
+    "clean-webpack-plugin": "^2.0.2",
     "cors": "^2.8.5",
     "cryptr": "^6.0.1",
     "dotenv": "^8.2.0",
@@ -26,6 +30,7 @@
     "http-server": "^0.12.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.2",
+    "nodemon": "^2.0.2",
     "pino": "^4.17.6",
     "prettier": "^1.18.2",
     "request": "^2.88.0",
