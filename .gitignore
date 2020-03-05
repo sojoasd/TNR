@@ -6,3 +6,4 @@ env.json
 .env
 dist/
 *.html
+my-first-key.pem
