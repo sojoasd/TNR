@@ -5,5 +5,5 @@ env.json
 .vscode/
 .env
 dist/
-*.html
+index.html
 my-first-key.pem
