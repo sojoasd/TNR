@@ -28,9 +28,43 @@ const FileSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+    isPending: {
+      type: Boolean,
+      index: true
+    },
+    isStray: {
+      type: Boolean
+    },
+    isNoDog: {
+      type: Boolean
+    },
+    isChained: {
+      type: Boolean
+    },
+    uncertainCount: {
+      type: Number
+    },
+    notNeuteredCount: {
+      type: Number
+    },
+    neuteredCount: {
+      type: Number
+    },
+    maleDogCount: {
+      type: Number
+    },
+    description: {
+      type: String
+    },
+    contact: {
+      type: String
+    },
     createEpochDate: {
       type: Number,
       required: true
+    },
+    updateEpochDate: {
+      type: Number
     }
   },
   {
@@ -56,5 +90,6 @@ const FileSchema = new mongoose.Schema(
 });
 
 export default function(conn: mongoose.Connection) {
+  conn.db.admin().command({ setParameter: 1, failIndexKeyTooLong: false });
   return conn.model<IFileDocument, IFileModel>(DB_TABLE.File, FileSchema);
 }

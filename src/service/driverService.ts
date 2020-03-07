@@ -57,7 +57,7 @@ export default class DriverService {
 
       const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
-      let params = { q: "mimeType='application/vnd.google-apps.folder'" };
+      let params = { q: "mimeType='application/vnd.google-apps.folder'", orderBy: "modifiedTime" };
 
       if (Object.keys(body).length === 0) {
         params.q += ` and name contains '${FOLDER_KEYWORD}'`;
@@ -218,6 +218,8 @@ export default class DriverService {
 
       const filter: IFileFilter = { id: body.id };
       delete body.id;
+
+      body.updateEpochDate = +new Date();
 
       await FileDBHelper.update(filter, body);
       logger.debug(`${fn} ok`, inputs);

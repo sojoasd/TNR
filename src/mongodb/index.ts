@@ -21,7 +21,7 @@ class Mongodb {
     logger.debug(fn, { config: env.MONGO_CONFIG });
 
     try {
-      await mongoose.connect(env.MONGO_CONFIG.URI);
+      await mongoose.connect(env.MONGO_CONFIG.URI, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
       logger.info("DATABASE IS CONNECTED");
     } catch (error) {
       logger.error(fn, { msg: error.message });
