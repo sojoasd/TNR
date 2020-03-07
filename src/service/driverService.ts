@@ -15,11 +15,12 @@ import { IDownloadInput, IFileListCheckWithDB } from "../model/common";
 import { IDriverFileIds, IDriverFileQuery, IDriverFolderQuery } from "../model/google";
 import { isObjectEmpty } from "../utility/common";
 import { IFile, IFileFilter } from "../mongodb/document/fileDocument";
+import { ORDER_BY } from "../enum/common";
 
-const FOLDER_KEYWORD = "HomeVisit";
 const clientId = env.GOOGLE_API_CONFIG.CLIENT_ID;
 const clientSecret = env.GOOGLE_API_CONFIG.CLIENT_SECRET;
 const redirectUri = env.GOOGLE_API_CONFIG.REDIRECT_URI;
+const FOLDER_KEYWORD = env.GOOGLE_API_CONFIG.FOLDER_DEFAULT_KEYWORD;
 const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
 export default class DriverService {
@@ -57,7 +58,8 @@ export default class DriverService {
 
       const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
-      let params = { q: "mimeType='application/vnd.google-apps.folder'", orderBy: "modifiedTime" };
+      const orderBy = body.orderby === ORDER_BY.ASC ? "modifiedTime desc" : "modifiedTime";
+      let params = { q: "mimeType='application/vnd.google-apps.folder'", orderBy };
 
       if (Object.keys(body).length === 0) {
         params.q += ` and name contains '${FOLDER_KEYWORD}'`;
@@ -72,6 +74,8 @@ export default class DriverService {
           params.q += ` and name contains '${body.keyword}'`;
         }
       }
+
+      logger.debug(`${fn} params`, { inputs, params });
 
       const res = await drive.files.list(params);
       logger.debug(fn, { folders: res.data.files, inputs });
@@ -93,7 +97,7 @@ export default class DriverService {
       await DriverService.getOauthClient(context.loginUser);
 
       const drive = google.drive({ version: "v3", auth: oAuth2Client });
-      const params = { q: `'${body.folderId}' in parents and mimeType='image/jpeg'` };
+      const params = { q: `'${body.folderId}' in parents and mimeType='image/jpeg'`, orderBy: "modifiedTime" };
       const res = await drive.files.list(params);
       logger.debug(fn, { folders: res.data.files, inputs });
 

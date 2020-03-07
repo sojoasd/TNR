@@ -1,3 +1,5 @@
+import { ORDER_BY } from "../enum/common";
+
 interface IGoogleAuthTokens {
   access_token: string;
   refresh_token?: string;
@@ -28,6 +30,7 @@ interface IDriverFileIds {
 interface IDriverFolderQuery {
   keyword?: string;
   folderId?: string;
+  orderby?: ORDER_BY;
 }
 
 export { IGoogleAuthTokens, IGoogleProfile, IDriverFileQuery, IDriverFileIds, IDriverFolderQuery };
