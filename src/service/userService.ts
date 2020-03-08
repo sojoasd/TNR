@@ -99,6 +99,7 @@ export default class UserService {
 
       if (user) {
         const userInfo: IUser = {
+          picture: profile.picture,
           accessToken: accessToken,
           googleAccessToken: googleTokens.access_token,
           googleRefreshToken: googleTokens.refresh_token,
@@ -108,12 +109,14 @@ export default class UserService {
           updatedAt: +new Date()
         };
 
+        logger.debug(`${fn} UserDBHelper.update`, { inputs, userInfo });
         const result = await UserDBHelper.update(filter, userInfo);
-        logger.debug(fn, { inputs, userInfo, result });
+        logger.debug(`${fn} UserDBHelper.update ok`, { inputs, userInfo, result });
       } else {
         const userInfo: IUser = {
           id: profile.id,
           name: profile.name,
+          picture: profile.picture,
           role: ROLE.USER,
           accessToken: accessToken,
           googleAccessToken: googleTokens.access_token,
@@ -124,8 +127,9 @@ export default class UserService {
           updatedAt: +new Date()
         };
 
+        logger.debug(`${fn} UserDBHelper.insert`, { inputs, userInfo });
         const result = await UserDBHelper.insert(userInfo);
-        logger.debug(fn, { inputs, userInfo, result });
+        logger.debug(`${fn} UserDBHelper.insert ok`, { inputs, userInfo, result });
       }
 
       return {

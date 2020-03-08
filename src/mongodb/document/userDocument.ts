@@ -10,6 +10,7 @@ export interface IUserFilter {
 export interface IUser {
   id?: string;
   name?: string;
+  picture?: string;
   role?: string;
   accessToken?: string;
   googleAccessToken?: string;
@@ -27,6 +28,7 @@ export interface IUserModel extends mongoose.Model<IUserDocument> {
 export default interface IUserDocument extends mongoose.Document {
   id: string;
   name: string;
+  picture: string;
   role: string;
   accessToken: string;
   googleAccessToken: string;
