@@ -1,3 +1,5 @@
+import { IFile } from "../mongodb/document/fileDocument";
+
 interface IMongoConfig {
   URI: string;
   AUTO_INDEX: boolean;
@@ -36,6 +38,7 @@ interface IFileListCheckWithDB {
   id: string;
   fileName: string;
   isDBExist: boolean;
+  fileInfo?: IFile;
 }
 
 export { IEnvironment, IDownloadInput, IFileListCheckWithDB };

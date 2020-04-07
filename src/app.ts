@@ -5,8 +5,18 @@ import Mongodb from "./mongodb/index";
 import RestfulAccount from "./restful-server/account";
 import RestfulPhoto from "./restful-server/photo";
 import RestfulDriver from "./restful-server/driver";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Headers"],
+    // origin: ["http://localhost:4200"],
+    credentials: true
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

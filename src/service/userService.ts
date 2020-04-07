@@ -135,6 +135,7 @@ export default class UserService {
       return {
         id: profile.id,
         name: profile.name,
+        picture: profile.picture,
         role: ROLE.USER,
         accessToken: accessToken,
         expireEpochDate: now.setSeconds(now.getSeconds() + env.TOKEN_EXP)

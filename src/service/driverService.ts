@@ -96,8 +96,10 @@ export default class DriverService {
 
       await DriverService.getOauthClient(context.loginUser);
 
+      const folderId = context.urlQueryParams["folderId"] || body.folderId;
+
       const drive = google.drive({ version: "v3", auth: oAuth2Client });
-      const params = { q: `'${body.folderId}' in parents and mimeType='image/jpeg'`, orderBy: "modifiedTime" };
+      const params = { q: `'${folderId}' in parents and mimeType='image/jpeg'`, orderBy: "modifiedTime" };
       const res = await drive.files.list(params);
       logger.debug(fn, { folders: res.data.files, inputs });
 
@@ -106,16 +108,21 @@ export default class DriverService {
       //   console.log("counts", files.fileIds.length);
       //   const sss = await DriverService.importFiles(context, files);
       //   console.log(sss);
-      const filter: IFileFilter = { folderId: body.folderId };
+      const filter: IFileFilter = { folderId: folderId };
       const dbData = await FileDBHelper.findList(filter);
+
+      // console.log(fn, dbData);
 
       const fileListCheckWithDB: IFileListCheckWithDB[] = [];
 
       res.data.files.map(m => {
+        const isDBExist = dbData.some(s => s.id === m.id);
+
         fileListCheckWithDB.push({
           id: m.id,
           fileName: m.name,
-          isDBExist: dbData.some(s => s.id === m.id)
+          isDBExist: dbData.some(s => s.id === m.id),
+          fileInfo: isDBExist ? dbData.find(f => f.id === m.id) : null
         });
       });
 
@@ -133,7 +140,7 @@ export default class DriverService {
     try {
       logger.debug(fn, inputs);
 
-      if (body.fileIds.length > 20) throw new Error("image counts be less than 21");
+      // if (body.fileIds.length > 20) throw new Error("image counts be less than 21");
 
       await DriverService.getOauthClient(context.loginUser);
 
@@ -149,6 +156,7 @@ export default class DriverService {
             if (fileList.some(s => s.id === fileId && s.isDBExist)) return;
 
             const fileName = fileList.find(f => f.id === fileId).fileName;
+
             const downloadInput: IDownloadInput = {
               googleAccessToken: oAuth2Client.credentials.access_token,
               folderId: body.folderId,
@@ -239,7 +247,14 @@ export default class DriverService {
 
     try {
       logger.debug(fn, inputs);
-      await FileDBHelper.delete(body.fileIds);
+      const params = context.urlQueryParams;
+
+      const deleteIds = Object.keys(params).map(m => {
+        return params[m];
+      });
+
+      await FileDBHelper.delete(deleteIds);
+
       logger.debug(`${fn} ok`, inputs);
     } catch (error) {
       logger.error(fn, { inputs, msg: error.message });

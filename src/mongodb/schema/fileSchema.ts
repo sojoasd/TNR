@@ -82,10 +82,11 @@ const FileSchema = new mongoose.Schema(
     const fn = "FileSchema.findPhotoList";
 
     logger.debug(fn, { wheres });
-    const photos: Promise<IFileDocument[]> = await this.find(wheres, null);
-    logger.debug(fn, { photos });
+    let files = (await this.find(wheres, null)) as IFileDocument[];
+    files = files.map(m => m.toObject());
+    logger.debug(fn, { files });
 
-    return photos;
+    return files;
   }
 });
 

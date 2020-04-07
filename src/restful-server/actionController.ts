@@ -16,6 +16,7 @@ export default class ActionController {
         const { loginUser } = res;
         const context: IContext = {
           url: url,
+          urlQueryParams: req["query"],
           loginUser: loginUser
         };
 

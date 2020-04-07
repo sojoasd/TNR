@@ -13,6 +13,7 @@ interface ILoginUser {
 
 interface IContext {
   url?: string;
+  urlQueryParams?: any;
   loginUser?: ILoginUser;
 }
 
