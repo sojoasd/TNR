@@ -62,7 +62,7 @@ export default class DriverService {
       let params = { q: "mimeType='application/vnd.google-apps.folder'", orderBy };
 
       if (Object.keys(body).length === 0) {
-        params.q += ` and name contains '${FOLDER_KEYWORD}'`;
+        // params.q += ` and name contains '${FOLDER_KEYWORD}'`;
       } else {
         if (body.folderId) {
           const res = await drive.files.get({ fileId: body.folderId });
