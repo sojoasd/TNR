@@ -16,31 +16,32 @@ import { IDriverFileIds, IDriverFileQuery, IDriverFolderQuery } from "../model/g
 import { isObjectEmpty } from "../utility/common";
 import { IFile, IFileFilter } from "../mongodb/document/fileDocument";
 import { ORDER_BY } from "../enum/common";
+import { OAuth2Client } from "googleapis-common";
 
 const clientId = env.GOOGLE_API_CONFIG.CLIENT_ID;
 const clientSecret = env.GOOGLE_API_CONFIG.CLIENT_SECRET;
 const redirectUri = env.GOOGLE_API_CONFIG.REDIRECT_URI;
 const FOLDER_KEYWORD = env.GOOGLE_API_CONFIG.FOLDER_DEFAULT_KEYWORD;
-const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
 export default class DriverService {
-  static async getOauthClient(loginUser: ILoginUser): Promise<void> {
+  static async getOauthClient(loginUser: ILoginUser): Promise<OAuth2Client> {
     const fn = "DriverService.getOauthClient";
     try {
       logger.debug(fn, { loginUser });
 
       const filter: IUserFilter = { id: loginUser.id };
       const user = await UserDBHelper.find(filter);
-      logger.debug(fn, { loginUser, user, credentials: oAuth2Client.credentials });
+      logger.debug(fn, { loginUser, user });
 
-      if (isObjectEmpty(oAuth2Client.credentials)) {
-        await oAuth2Client.setCredentials({
-          access_token: user.googleAccessToken,
-          refresh_token: user.googleRefreshToken,
-          token_type: user.googleTokenType,
-          id_token: user.googleIdToken
-        });
-      }
+      const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+      await oAuth2Client.setCredentials({
+        access_token: user.googleAccessToken,
+        refresh_token: user.googleRefreshToken,
+        token_type: user.googleTokenType,
+        id_token: user.googleIdToken
+      });
+
+      return oAuth2Client;
     } catch (error) {
       logger.error(fn, { loginUser, msg: error.message });
       throw error;
@@ -54,7 +55,7 @@ export default class DriverService {
     try {
       logger.debug(fn, inputs);
 
-      await DriverService.getOauthClient(context.loginUser);
+      const oAuth2Client = await DriverService.getOauthClient(context.loginUser);
 
       const drive = google.drive({ version: "v3", auth: oAuth2Client });
 
@@ -94,7 +95,7 @@ export default class DriverService {
     try {
       logger.debug(fn, inputs);
 
-      await DriverService.getOauthClient(context.loginUser);
+      const oAuth2Client = await DriverService.getOauthClient(context.loginUser);
 
       const folderId = context.urlQueryParams["folderId"] || body.folderId;
 
@@ -142,7 +143,7 @@ export default class DriverService {
 
       // if (body.fileIds.length > 20) throw new Error("image counts be less than 21");
 
-      await DriverService.getOauthClient(context.loginUser);
+      const oAuth2Client = await DriverService.getOauthClient(context.loginUser);
 
       //重新取得 folder 底下所有 file info
       const folerQuery: IDriverFileQuery = { folderId: body.folderId };
@@ -163,7 +164,7 @@ export default class DriverService {
               fileId: fileId,
               fileName: fileName
             };
-            const metaData = await DriverService.downloadFile(downloadInput);
+            const metaData = await DriverService.downloadFile(oAuth2Client, downloadInput);
             await FileDBHelper.insert(metaData);
 
             return metaData;
@@ -180,7 +181,7 @@ export default class DriverService {
     }
   }
 
-  static async downloadFile(downloadInput: IDownloadInput): Promise<IFile> {
+  static async downloadFile(oAuth2Client: OAuth2Client, downloadInput: IDownloadInput): Promise<IFile> {
     const fn = "DriverService.importFiles";
     const inputs = { downloadInput };
 
